@@ -3,7 +3,7 @@ const { chromium } = require("playwright");
 const fs = require("fs");
 
 // Configuración específica para Render
-process.env.PLAYWRIGHT_BROWSERS_PATH = "0";
+process.env.PLAYWRIGHT_BROWSERS_PATH = "/opt/render/project/.cache/playwright";
 
 // Función generadora de emails
 function email_generator() {
@@ -38,10 +38,10 @@ async function createDeezerAccount() {
         "--single-process",
         "--disable-gpu",
       ],
-      // Esta línea es crucial para Render
+      // Ruta específica para Render
       executablePath:
         process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ||
-        "/opt/render/.cache/ms-playwright/chromium-*/chrome-linux/chrome",
+        "/opt/render/project/.cache/playwright/chromium-*/chrome-linux/chrome",
     });
 
     // Resto del código permanece igual...

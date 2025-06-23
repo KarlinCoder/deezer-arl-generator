@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node app.js",
-    "install": "npx playwright install chromium --with-deps"
+    "install": "PLAYWRIGHT_BROWSERS_PATH=/opt/render/project/.cache/playwright npx playwright install chromium"
   },
   "keywords": [],
   "author": "",

@@ -4,9 +4,9 @@ services:
     env: node
     buildCommand: |
       npm install
-      PLAYWRIGHT_BROWSERS_PATH=0 npm run install
+      npm run install
     startCommand: npm start
     plan: free
     envVars:
       - key: PLAYWRIGHT_BROWSERS_PATH
-        value: "0"
+        value: /opt/render/project/.cache/playwright
