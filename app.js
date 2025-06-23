@@ -3,7 +3,7 @@ const { chromium } = require("playwright");
 const fs = require("fs");
 
 // Configuración específica para Render
-process.env.PLAYWRIGHT_BROWSERS_PATH = "0"; // Esto fuerza a usar el navegador incluido
+process.env.PLAYWRIGHT_BROWSERS_PATH = "0";
 
 // Función generadora de emails
 function email_generator() {
@@ -17,7 +17,6 @@ function email_generator() {
   return [email, years];
 }
 
-// Función para crear cuenta Deezer
 async function createDeezerAccount() {
   let browser;
   try {
@@ -25,7 +24,7 @@ async function createDeezerAccount() {
     let email = gmail[0];
     let age = gmail[1];
 
-    // Configuración del navegador para Render
+    // Configuración optimizada para Render
     browser = await chromium.launch({
       headless: true,
       args: [
@@ -39,10 +38,13 @@ async function createDeezerAccount() {
         "--single-process",
         "--disable-gpu",
       ],
+      // Esta línea es crucial para Render
       executablePath:
-        process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined,
+        process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ||
+        "/opt/render/.cache/ms-playwright/chromium-*/chrome-linux/chrome",
     });
 
+    // Resto del código permanece igual...
     const context = await browser.newContext({
       userAgent:
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36",
