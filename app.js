@@ -2,7 +2,10 @@ const express = require("express");
 const { chromium } = require("playwright");
 const fs = require("fs");
 
-// Función generadora de emails (la misma que tenías)
+// Configuración específica para Render
+process.env.PLAYWRIGHT_BROWSERS_PATH = "0"; // Esto fuerza a usar el navegador incluido
+
+// Función generadora de emails
 function email_generator() {
   let token = "";
   for (i = 1; i <= 2; i++) {
@@ -14,7 +17,7 @@ function email_generator() {
   return [email, years];
 }
 
-// Función para crear cuenta Deezer (modificada para retornar el ARL o null)
+// Función para crear cuenta Deezer
 async function createDeezerAccount() {
   let browser;
   try {
@@ -22,6 +25,7 @@ async function createDeezerAccount() {
     let email = gmail[0];
     let age = gmail[1];
 
+    // Configuración del navegador para Render
     browser = await chromium.launch({
       headless: true,
       args: [
@@ -29,7 +33,14 @@ async function createDeezerAccount() {
         "--no-sandbox",
         "--disable-setuid-sandbox",
         "--disable-dev-shm-usage",
+        "--disable-accelerated-2d-canvas",
+        "--no-first-run",
+        "--no-zygote",
+        "--single-process",
+        "--disable-gpu",
       ],
+      executablePath:
+        process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined,
     });
 
     const context = await browser.newContext({
@@ -79,7 +90,6 @@ async function createDeezerAccount() {
 
       if (arlCookie) {
         console.log(" [+] ARL encontrado:", arlCookie.value);
-        // Guardamos la cuenta en el archivo
         let text = `Correo => ${email}\nClave: Chmod777..\nARL: ${arlCookie.value}\n\n`;
         fs.appendFileSync("deezer_account.txt", text);
 
@@ -120,17 +130,15 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 
-// Endpoint para obtener un ARL
+// Endpoints (igual que antes)
 app.get("/api/arl", async (req, res) => {
   let attempts = 0;
-  const maxAttempts = 5; // Máximo de intentos por petición
+  const maxAttempts = 5;
 
   while (attempts < maxAttempts) {
     attempts++;
     console.log(`\n === Intento #${attempts} ===`);
-
     const result = await createDeezerAccount();
-
     if (result) {
       return res.json({
         success: true,
@@ -138,12 +146,8 @@ app.get("/api/arl", async (req, res) => {
         attempts: attempts,
       });
     }
-
-    // Esperar 3 segundos entre intentos
     await new Promise((resolve) => setTimeout(resolve, 3000));
   }
-
-  // Si llegamos aquí es que todos los intentos fallaron
   res.status(500).json({
     success: false,
     message: "No se pudo generar un ARL después de varios intentos",
@@ -151,22 +155,17 @@ app.get("/api/arl", async (req, res) => {
   });
 });
 
-// Endpoint para obtener múltiples ARLs
 app.get("/api/arls/:count", async (req, res) => {
-  const count = Math.min(parseInt(req.params.count) || 1, 10); // Máximo 10 ARLs por petición
+  const count = Math.min(parseInt(req.params.count) || 1, 10);
   const results = [];
-
   for (let i = 0; i < count; i++) {
     let attempts = 0;
     const maxAttempts = 5;
     let success = false;
-
     while (attempts < maxAttempts && !success) {
       attempts++;
       console.log(`\n === ARL ${i + 1}/${count} - Intento #${attempts} ===`);
-
       const result = await createDeezerAccount();
-
       if (result) {
         results.push(result);
         success = true;
@@ -174,7 +173,6 @@ app.get("/api/arls/:count", async (req, res) => {
         await new Promise((resolve) => setTimeout(resolve, 3000));
       }
     }
-
     if (!success) {
       return res.status(500).json({
         success: false,
@@ -184,7 +182,6 @@ app.get("/api/arls/:count", async (req, res) => {
       });
     }
   }
-
   res.json({
     success: true,
     count: results.length,
@@ -192,14 +189,12 @@ app.get("/api/arls/:count", async (req, res) => {
   });
 });
 
-// Ruta de prueba
 app.get("/", (req, res) => {
   res.send(
     "API para generación de ARLs de Deezer. Use /api/arl para obtener un ARL."
   );
 });
 
-// Iniciar servidor
 app.listen(PORT, () => {
   console.log(`Servidor API corriendo en http://localhost:${PORT}`);
 });
