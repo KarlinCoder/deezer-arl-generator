@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: deezer-arl-generator
+    env: node
+    buildCommand: npm install && npx playwright install --with-deps chromium
+    startCommand: node app.js
